@@ -31,10 +31,10 @@ list_meta_data_t* list_get_meta_data(void* list);
 
 // NOTE: Little hacky, but this is to make rvalue arguments valid
 #define list_append(LIST, VALUE)\
-{\
+do{\
     typeof(VALUE) _VALUE = VALUE;\
     LIST = (typeof(LIST))list_append_internal(LIST, (void*)(&_VALUE), 1);\
-}
+}while(0)
 #define list_append_list(DEST, SRC)\
     DEST = (typeof(DEST))list_append_internal(DEST, (void*)SRC, list_length(SRC))
 #define list_nappend_list(DEST, SRC, LEN)\
@@ -49,10 +49,10 @@ void* list_append_internal(void* list, void* value, size_t elements);
 void list_remove_range(void *list, size_t start, size_t end);
 
 #define list_insert_at(LIST, VALUE, INDEX)\
-{\
+do{\
     typeof(VALUE) _VALUE = VALUE;\
     LIST = (typeof(LIST))list_insert_at_internal(LIST, (void*)(&_VALUE), INDEX);\
-}
+}while(0)
 void* list_insert_at_internal(void *list, void* value, size_t index);
 
 //void list_insert_at(void *dest, void *src, size_t elements);

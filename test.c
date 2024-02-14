@@ -21,6 +21,7 @@ int main(void)
     if(list_length(list) != 3)
     {
         fprintf(stderr, "LIST LENGTH ASSERTION FAILED:\nEXPECTED LENGTH == 3, GOT %zu\n", list_length(list));
+        list_free(list);
         exit(1);
     }
 
@@ -31,6 +32,7 @@ int main(void)
     if(list[0] != 3 || list[1] != 6 || list[2] != 2)
     {
         fprintf(stderr, "LIST VALUE ASSERTION FAILD:\nEXPECTED: 3 6 2\n");
+        list_free(list);
         exit(1);
     }
 
@@ -38,6 +40,7 @@ int main(void)
     if(list_length(list) != 2)
     {
         fprintf(stderr, "LIST POP FAILED:\nEXPECTED LENGTH == 2\n, GOT %zu", list_length(list));
+        list_free(list);
         exit(1);
     }
 
@@ -72,6 +75,7 @@ int main(void)
     if(d.x != c.x || d.y != c.y || d.z != c.z )
     {
         fprintf(stderr, "LIST VALUE REMOVE AT FAILED:\nEXPECTED: %zu %zu %zu GOT: %zu %zu %zu", c.x, c.y, c.z, d.x, d.y, d.z);
+        list_free(vec_list);
         exit(1);
     }
 
@@ -102,6 +106,46 @@ int main(void)
 
     list_free(list_a);
     list_free(list_b);
+
+    fprintf(stderr, "\nLINKED LIST TEST\n");
+
+    linked_list_t linked = linked_init(int);
+
+    linked_push_front(linked, 5);
+
+    int value = 0;
+    linked_get_value(linked, linked.head, &value);
+    fprintf(stderr, "%d\n", value);
+    if(value != 5)
+    {
+        fprintf(stderr, "LINKED LIST FAILED:\nEXPECTED 5, GOT %d", value);
+        linked_free(linked);
+        exit(1);
+    }
+
+    fprintf(stderr, "\n");
+    linked_push_front(linked, 2);
+    linked_push_front(linked, 9);
+    linked_push_front(linked, 1);
+    linked_push_front(linked, 4);
+
+    for(node_t* i = linked.head; i != NULL; i = i->next)
+    {
+        linked_get_value(linked, i, &value);
+        fprintf(stderr, "%d ", value);
+    }
+    fprintf(stderr, "\n");
+
+    linked_pop_front(linked);
+
+    for(node_t* i = linked.head; i != NULL; i = i->next)
+    {
+        linked_get_value(linked, i, &value);
+        fprintf(stderr, "%d ", value);
+    }
+
+    linked_free(linked);
+    
 
     fprintf(stderr, "\nTEST PASSED\n");
     return 0;

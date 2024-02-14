@@ -5,7 +5,9 @@ Far from finished, just started working on this :)
 
 ## Progress
 - Generic dynamic list type is mostly finished, just needs a few more QOL functions and polish
-- Just started working on linked list, but since it's a simple data structure it won't take long to finish implementing
+- Linked list is mostly finished as well
+- Thinking about how to implement a consistent way of doing error handling
+
 
 ## Ideas
 Just some general things I'm thinking about implementing

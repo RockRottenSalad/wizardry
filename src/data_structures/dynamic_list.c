@@ -43,7 +43,13 @@ void* list_append_internal(void* list, void* value, size_t elements)
 //        list_offset = list_meta_data->ptr + sizeof(list_meta_data_t);
         list = list_meta_data->ptr + sizeof(list_meta_data_t);
     }
-    (void)memmove(list_offset + (list_meta_data->length * list_meta_data->type_size), value, list_meta_data->type_size * elements);
+
+    // TODO: Check for errors
+    (void)memcpy(
+            list + (list_meta_data->length * list_meta_data->type_size), // Address after last element
+            value,
+            list_meta_data->type_size * elements
+            );
     list_meta_data->length += elements;
 
     return list;
