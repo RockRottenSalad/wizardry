@@ -122,7 +122,7 @@ void* list_shrink(void *list, size_t new_capacity)
         + sizeof(list_meta_data_t);
     tmp = realloc(list_meta_data->ptr, list_meta_data->allocated);
 
-    // TODO: error out here
+    // TODO: error out here without asserting
     assert(tmp != NULL);
 
     list_meta_data = tmp;

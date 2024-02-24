@@ -41,6 +41,7 @@ void linked_push_front_internal(linked_list_t* linked_list, void* data)
         linked_list->tail = new_head;
 }
 
+// NOTE: assumes list at least has 1 element
 void linked_pop_front_internal(linked_list_t* linked_list)
 {
     node_t* prev_head = linked_list->head;
@@ -52,9 +53,10 @@ void linked_pop_front_internal(linked_list_t* linked_list)
     free(prev_head);
 }
 
+// NOTE: assumes list at least has 1 element
 void linked_pop_back_internal(linked_list_t* linked_list)
 {
-    node_t* prev_tail = linked_list->head;
+    node_t* prev_tail = linked_list->tail;
     if(linked_list->tail->prev != NULL)
         linked_list->tail->prev = NULL;
 
@@ -69,3 +71,32 @@ void linked_get_value_internal(linked_list_t* linked_list, node_t* node, void* d
 
     (void)memcpy(dest, node->data, linked_list->type_size);
 }
+
+void linked_get_value_at_internal(linked_list_t* linked_list, size_t index, void* dest)
+{
+    node_t* node = linked_list->head;
+    for(size_t i = 0; i < index; i++)
+    {
+        node = node->next;
+    }
+    (void)memcpy(dest, node->data, linked_list->type_size);
+}
+
+// Assumes dest isn't NULL, dest->next is allowed to be NULL
+void linked_insert_after_internal(linked_list_t* linked_list, node_t* dest, void* data)
+{
+    node_t* new_node = (node_t*)malloc(NODE_SIZE);
+    new_node->data = new_node + NODE_DATA_OFFSET;
+    (void)memcpy(new_node->data, data, linked_list->type_size);
+
+    node_t* tmp = dest->next;
+    dest->next = new_node;
+
+    new_node->next = tmp;
+    new_node->prev = dest;
+
+    if(tmp != NULL)
+        tmp->prev = new_node;
+}
+
+

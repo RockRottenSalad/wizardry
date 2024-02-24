@@ -80,6 +80,7 @@ void list_pop(void* list);
 
 size_t list_length(void* list);
 
+// Returns NULL to override the pointer and prevent accidental reuse of freed list
 #define list_free(LIST)\
     LIST = list_free_internal(LIST);
 void* list_free_internal(void* list);
