@@ -3,3 +3,4 @@ test
 tags
 *.txt
 ./bin/
+wiz_build

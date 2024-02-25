@@ -9,6 +9,10 @@ Far from finished, just started working on this :)
 - Working on hashmap
 - Thinking about how to implement a consistent way of doing error handling
 
+### Last push
+- Progress on hashmap
+- Fixed bugs with linked list(no more complaints from valgrind)
+
 
 ## Ideas
 Just some general things I'm thinking about implementing

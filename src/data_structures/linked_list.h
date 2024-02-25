@@ -21,10 +21,13 @@ typedef struct node_t node_t;
 // Could throw this enum into the linked list struct
 enum linked_list_error_t {NO_ERROR = 0, INSERTION_ERROR};
 
+// NOTE: Currently ptr to data is accessed by taking 
+// the pointer to the node and offseting it by 16 bytes(the size of 2 pointers)
+// This is just temporary for now, but it should work just fine
 struct node_t
 {
     struct node_t *next, *prev;
-    void* data;
+//    void* data;
 };
 
 typedef struct

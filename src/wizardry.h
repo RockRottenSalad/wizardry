@@ -10,5 +10,6 @@
 
 #include "data_structures/linked_list.h"
 #include "data_structures/dynamic_list.h"
+#include "data_structures/hashmap.h"
 
 #endif
