@@ -9,19 +9,23 @@
 
 size_t hash(const char* key);
 
+#define KEY_OFFSET(HASH_PAIR) (void*)(HASH_PAIR.data) + hashmap->type_size
+#define KEY_OFFSET_PTR(HASH_PAIR) (void*)(HASH_PAIR->data) + hashmap->type_size
+
 struct hash_pair_t 
 {
-    char *key;
     struct hash_pair_t *next;
+    size_t key_len;
 
     void *data;
+    //char *key;
 };
 
 typedef struct hash_pair_t hash_pair_t;
 
 typedef struct
 {
-    hash_pair_t **hashmap;
+    hash_pair_t *hashmap;
     size_t size, type_size, elements;
 } hashmap_t;
 

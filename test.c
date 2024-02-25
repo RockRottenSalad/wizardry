@@ -23,7 +23,7 @@ int main(void)
     linked_test();
 
     // Hashmap test
-    //hashmap_test();
+    hashmap_test();
     
     fprintf(stderr, "\nTEST PASSED\n");
     return 0;

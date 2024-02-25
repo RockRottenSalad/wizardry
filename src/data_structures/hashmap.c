@@ -20,11 +20,11 @@ hashmap_t hashmap_init_internal(size_t type_size, size_t start_size)
 {
     hashmap_t new_hashmap = {0};
 
-    new_hashmap.hashmap = (hash_pair_t**)malloc(start_size * sizeof(hash_pair_t*));
+    new_hashmap.hashmap = (hash_pair_t*)malloc(start_size * sizeof(hash_pair_t));
     new_hashmap.type_size = type_size;
     new_hashmap.size = start_size;
 
-    memset(new_hashmap.hashmap, 0, start_size * sizeof(hash_pair_t*));
+    memset(new_hashmap.hashmap, 0, start_size * sizeof(hash_pair_t));
 
     return new_hashmap;
 }
@@ -32,43 +32,52 @@ hashmap_t hashmap_init_internal(size_t type_size, size_t start_size)
 void hashmap_add_internal(hashmap_t *hashmap, const char *key, void *data)
 {
     size_t index = hash(key) % hashmap->size;
-    fprintf(stderr, "index: %zu\n", index);
+    fprintf(stderr, "index: %zu, key: %s, value: %d\n", index, key, *(int*)data);
     size_t key_len = strlen(key);
 
-    hash_pair_t *hash_pair = NULL;
+    hash_pair_t hash_pair = {0}, *iterator = &hashmap->hashmap[index], *prev = NULL;
 
-    hash_pair = (hash_pair_t*)malloc( (key_len + 1) + hashmap->type_size + sizeof(hash_pair_t*));
-//    hash_pair->key = (char*)malloc(key_len+1 + hashmap->type_size);
+    hash_pair.next = NULL;
+    hash_pair.key_len = key_len;
 
-    hash_pair->key = (char*)hash_pair;
-//    (void)memcpy(hash_pair->key, key, key_len);
-    strcpy(hash_pair->key, key);
-//    hash_pair->key[key_len] = '\0';
-    hash_pair->next = NULL;
+    hash_pair.data = malloc(hashmap->type_size + key_len + 1);
 
-    (void)memcpy(hash_pair->data, data, hashmap->type_size);
+    (void)memcpy(hash_pair.data, data, hashmap->type_size);
+    (void)strcpy(KEY_OFFSET(hash_pair), key);
 
-    if(hashmap->hashmap[index] != NULL)
+    // Collision
+    if(iterator->key_len != 0)
     {
-        hash_pair_t **hash_dest = &hashmap->hashmap[index]->next;
-        while(*hash_dest != NULL)
-        {
-            hash_dest = &(*hash_dest)->next;
-        }
-        *hash_dest = hash_pair;
-    }
-    else
-        hashmap->hashmap[index] = hash_pair;
+        fprintf(stderr, "add: handling collision\n");
+        do{
+            prev = iterator;
+            iterator = iterator->next;
+        }while(iterator != NULL);
 
+        prev->next = (hash_pair_t*)malloc(sizeof(hash_pair_t));
+        iterator = prev->next;
+    }
+
+    (void)memcpy(iterator, &hash_pair, sizeof(hash_pair_t));
+    
 }
 
 void hashmap_get_internal(hashmap_t *hashmap, const char *key, void *dest)
 {
     size_t index = hash(key) % hashmap->size;
 
-    hash_pair_t* hash_pair = hashmap->hashmap[index];
-    if(hash_pair == NULL)
+    hash_pair_t *hash_pair = &hashmap->hashmap[index], *prev = NULL;
+    if(hash_pair->key_len == 0)
         return;
+
+    while(strcmp(KEY_OFFSET_PTR(hash_pair), key) != 0)
+    {
+        fprintf(stderr, "get: handling collision\n");
+        if(hash_pair == NULL) // TODO: handle error
+            return;
+        prev = hash_pair;
+        hash_pair = hash_pair->next;
+    }
 
     (void)memcpy(dest, hash_pair->data, hashmap->type_size);
 }
@@ -77,18 +86,29 @@ void hashmap_remove(hashmap_t *hashmap, const char *key)
 {
     size_t index = hash(key) % hashmap->size;
 
-    hash_pair_t *hash_pair_prev = NULL; 
-    hash_pair_t *hash_pair = hashmap->hashmap[index];
+    //hash_pair_t *hash_pair_prev = NULL; 
+    hash_pair_t *hash_pair = &hashmap->hashmap[index], *prev = NULL;
 
-    while(strcmp(hash_pair->key, key) != 0 && hash_pair != NULL)
+    while(strcmp(KEY_OFFSET_PTR(hash_pair), key) != 0)
     {
+        if(hash_pair == NULL) // TODO: handle error
+            return;
+        prev = hash_pair;
         hash_pair = hash_pair->next;
     }
 
-    if(hash_pair->next != NULL && hash_pair_prev != NULL)
-        hash_pair_prev->next = hash_pair->next;
+    free(hash_pair->data);
 
-    free(hash_pair);
+    if(&hashmap->hashmap[index] != hash_pair)
+    {
+        free(hash_pair);
+        prev->next = NULL;
+    }
+    else if(hash_pair->next != NULL)
+        (void)memmove(hash_pair, hash_pair->next, sizeof(hash_pair_t));
+    else
+        memset(hash_pair, 0, sizeof(hash_pair_t));
+
 }
 
 void hashmap_recursive_free_internal(hash_pair_t *ptr)
@@ -98,7 +118,7 @@ void hashmap_recursive_free_internal(hash_pair_t *ptr)
     else
         hashmap_recursive_free_internal(ptr->next);
 
-    free(ptr);
+    free(ptr->data);
 }
 
 hashmap_t hashmap_free_internal(hashmap_t *hashmap)
@@ -109,7 +129,7 @@ hashmap_t hashmap_free_internal(hashmap_t *hashmap)
     // e.g. 2 threads, 1 starts at 0 and the other starts halfway 
     for(size_t i = 0; i < hashmap->size; i++)
     {
-        hashmap_recursive_free_internal(hashmap->hashmap[i]);
+        hashmap_recursive_free_internal(&hashmap->hashmap[i]);
     }
 
     free(hashmap->hashmap);
