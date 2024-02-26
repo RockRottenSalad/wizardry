@@ -20,6 +20,7 @@ int main(int argc, char** argv)
             );
 
     ASSERT(files > 0);
+
     FOR_FILE_IN_DIR("./src/utils/", WHERE( FILE_FORMAT("c") ),
             CMD_APPEND(&compile, FILE_PATH); 
             LOG("Adding " BLUE("%s") " to build", FILE_NAME);

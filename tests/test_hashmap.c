@@ -45,6 +45,13 @@ void hashmap_test(void)
 
     hashmap_free(hashmap);
 
+    hashmap_t generic = g_hashmap_init(int, float);
+
+    float v = 0.0f;
+    g_hashmap_add(generic, 3, 1.5f);
+    g_hashmap_get(generic, 3, &v);
+    assert(v == 1.5f);
+
     fprintf(stderr, "\nHASHMAP TEST PASSED\n");
 }
 
